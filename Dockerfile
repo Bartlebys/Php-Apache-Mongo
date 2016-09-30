@@ -1,5 +1,5 @@
 FROM php:5.6-apache
-MAINTAINER Benoit Pereira da Silva <bpds@me.com>
+MAINTAINER Benoit Pereira da Silva <https://pereira-da-silva.com>
 
 ## Let's update apt-get (once)
 RUN apt-get update
