@@ -7,6 +7,10 @@ RUN apt-get update
 ## Nano
 RUN apt-get install -y nano
 
+## Vim
+RUN apt-get install -y vim
+
+
 ###############
 #  Apache
 ###############
