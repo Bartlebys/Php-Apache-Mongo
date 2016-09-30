@@ -1,8 +1,22 @@
 FROM php:5.6-apache
 MAINTAINER Benoit Pereira da Silva <https://pereira-da-silva.com>
 
-## Let's update apt-get (once)
+
+###############
+#   Mongo DB
+###############
+
+## FROM : https://docs.mongodb.com/manual/tutorial/install-mongodb-on-debian/
+
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 RUN apt-get update
+RUN apt-get install -y mongodb-org
+
+
+###############
+#  Nano, VIM
+###############
 
 ## Nano
 RUN apt-get install -y nano
@@ -17,12 +31,6 @@ RUN apt-get install -y vim
 
 # Enable apache mods.
 RUN a2enmod rewrite
-
-###############
-#   Mongo DB
-###############
-
-RUN apt-get install -y mongodb
 
 ################
 #   PHP
@@ -60,6 +68,8 @@ RUN apt-get install -y mongodb
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
+
+
 # mcrypt
 RUN apt-get install -y libmcrypt-dev
 RUN docker-php-ext-install -j$(nproc) mcrypt
@@ -70,15 +80,16 @@ RUN docker-php-ext-install -j$(nproc) iconv
 # semaphore
 RUN docker-php-ext-install -j$(nproc) sysvsem
 
-# mongo
-
-# We try both
-RUN pecl install mongodb
-RUN pecl install mongo &&\
-    echo "extension=mongo.so" > /usr/local/etc/php/conf.d/ext-mongo.ini
-
 # XDEBUG
 RUN yes | pecl install xdebug \
     && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
+
+
+########
+# mongo
+########
+
+RUN pecl install mongo &&\
+    echo "extension=mongo.so" > /usr/local/etc/php/conf.d/ext-mongo.ini
