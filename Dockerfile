@@ -13,7 +13,6 @@ RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main" | 
 RUN apt-get update
 RUN apt-get install -y mongodb-org
 
-
 #   **WARNING (Windows & OS X):*** from https://hub.docker.com/_/mongo/
 #
 #   The default Docker setup on Windows and OS X uses a VirtualBox VM to host the Docker daemon.
@@ -30,6 +29,10 @@ RUN apt-get install -y mongodb-org
 #   $  docker run --name some-mongo -v /my/own/datadir:/data/db -d mongo:tag
 #   The -v /my/own/datadir:/data/db part of the command mounts the /my/own/datadir directory from the underlying host system as /data/db inside the container,
 #   where MongoDB by default will write its data files.
+
+RUN mkdir -p /data/db /data/configdb \
+	&& chown -R mongodb:mongodb /data/db /data/configdb
+VOLUME /data/db /data/configdb
 
 
 ###############
@@ -101,6 +104,6 @@ RUN yes | pecl install xdebug \
 
 RUN apt-get install -y  libsasl2-dev\
                         libssl-dev
-                        
+
 RUN pecl install mongo &&\
     echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini
