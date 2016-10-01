@@ -33,12 +33,11 @@ RUN apt-get install -y mongodb-org
 
 
 ###############
-# VIM
+# Nano
 ###############
 
-
-## Vim is a must
-RUN apt-get install -y vim
+# We want to have a simple editor by default
+RUN apt-get install nano
 
 
 ###############
@@ -100,5 +99,8 @@ RUN yes | pecl install xdebug \
 
 # mongo
 
+RUN apt-get install -y  libsasl2-dev\
+                        libssl-dev
+                        
 RUN pecl install mongo &&\
     echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini
