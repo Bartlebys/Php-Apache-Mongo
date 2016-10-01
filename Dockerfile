@@ -1,12 +1,12 @@
 FROM php:5.6-apache
 MAINTAINER Benoit Pereira da Silva <https://pereira-da-silva.com>
 
-
 ###############
 #   Mongo DB
 ###############
 
-## FROM : https://docs.mongodb.com/manual/tutorial/install-mongodb-on-debian/
+# Procedure from the official Mongo Doc.
+# https://docs.mongodb.com/manual/tutorial/install-mongodb-on-debian/
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
 RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
@@ -14,14 +14,30 @@ RUN apt-get update
 RUN apt-get install -y mongodb-org
 
 
+#   **WARNING (Windows & OS X):*** from https://hub.docker.com/_/mongo/
+#
+#   The default Docker setup on Windows and OS X uses a VirtualBox VM to host the Docker daemon.
+#   Unfortunately, the mechanism VirtualBox uses to share folders between the host system and the Docker container is not compatible with the memory mapped files used by MongoDB
+#   (see vbox bug, docs.mongodb.org and related jira.mongodb.org bug).
+#   This means that it is not possible to run a MongoDB container with the data directory mapped to the host.
+#
+#   The Docker documentation is a good starting point for understanding the different storage options and variations,
+#   and there are multiple blogs and forum postings that discuss and give advice in this area.
+#   We will simply show the basic procedure here for the latter option above:
+#   Create a data directory on a suitable volume on your host system, e.g. /my/own/datadir.
+#   Start your mongo container like this:
+#
+#   $  docker run --name some-mongo -v /my/own/datadir:/data/db -d mongo:tag
+#   The -v /my/own/datadir:/data/db part of the command mounts the /my/own/datadir directory from the underlying host system as /data/db inside the container,
+#   where MongoDB by default will write its data files.
+
+
 ###############
-#  Nano, VIM
+# VIM
 ###############
 
-## Nano
-RUN apt-get install -y nano
 
-## Vim
+## Vim is a must
 RUN apt-get install -y vim
 
 
@@ -36,8 +52,8 @@ RUN a2enmod rewrite
 #   PHP
 ################
 
-# # # # # # # # # # # # # # # # # # # # # # # #
-# Notes from https://hub.docker.com/_/php/
+
+#  NOTES https://hub.docker.com/_/php/
 #
 #  PHP Core Extensions :
 #
@@ -64,10 +80,6 @@ RUN a2enmod rewrite
 #   RUN apt-get update && apt-get install -y libmemcached-dev \
 #       && pecl install memcached \
 #       && docker-php-ext-enable memcached
-#
-#
-# # # # # # # # # # # # # # # # # # # # # # # #
-
 
 
 # mcrypt
@@ -86,10 +98,7 @@ RUN yes | pecl install xdebug \
     && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
 
-
-########
 # mongo
-########
 
 RUN pecl install mongo &&\
-    echo "extension=mongo.so" > /usr/local/etc/php/conf.d/ext-mongo.ini
+    echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini
