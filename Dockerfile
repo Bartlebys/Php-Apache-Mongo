@@ -106,3 +106,7 @@ RUN apt-get install -y  libsasl2-dev\
 
 RUN pecl install mongo &&\
     echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini
+
+
+# Install Telnet to be able to test the connectivity from the container to the host
+RUN apt-get install telnet
