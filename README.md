@@ -42,7 +42,7 @@ You will have a full PHP / APACHE / MONGODB container with XDEBUG enabled.
 
 If you call `./run.sh` it will use the options set in `default.conf`.
 
-[run.sh Script] (XDebug/PHPStorm/run.sh)
+The more convenient way to run is should create a `configuration.conf` file and call `./run.sh -o configuration.conf`
 
 ## To proceed to install
 

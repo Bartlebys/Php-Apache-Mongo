@@ -13,13 +13,11 @@
 # To preserve the image
 #   ./run.sh -p --image serverimage --container SampleContainer
 
-
+clear
 CURRENT_DIR=$(PWD)
 cd "$(dirname "$0")"
-source ./default.conf
 
-# Sever name must be in lower cases
-IMAGE_NAME = | awk '{print tolower($IMAGE_NAME)}'
+source ./default.conf
 
 # Arguments parsing
 while [[ $# -gt 1 ]]
@@ -48,12 +46,25 @@ case $key in
     -i|--image)
     IMAGE_NAME="$2"
     ;;
+    -o|--options-file)
+    OPTIONS_FILE="$2"
+    ;;
     *)
     #
     ;;
 esac
 shift
 done
+
+if [ -z ${OPTIONS_FILE+x} ];
+    then
+    echo "No options file"
+    else
+    echo "Using options file $OPTIONS_FILE"
+    source $OPTIONS_FILE;
+fi;
+
+
 
 if [[ "$INSTALL" =~ ^YES ]];
     then
@@ -62,7 +73,11 @@ if [[ "$INSTALL" =~ ^YES ]];
         XDEBUG="YES"
 fi;
 
+# Server name must be in lower cases
+IMAGE_NAME = | awk '{print tolower($IMAGE_NAME)}'
+
 echo "";
+echo OPTIONS_FILE: $OPTIONS_FILE
 echo INSTALL: $INSTALL
 echo CONTAINER_NAME: $CONTAINER_NAME
 echo IMAGE_NAME: $IMAGE_NAME
