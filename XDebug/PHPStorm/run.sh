@@ -1,5 +1,9 @@
 #!/bin/sh
 
+CURRENT_DIR=$(PWD)
+cd "$(dirname "$0")"
+
+# We perform cleanup in case you run this script multiple times.
 # Stop the container
 echo "Stop "
 docker stop DockerizedSample
@@ -11,39 +15,41 @@ docker rm DockerizedSample
 # Delete the image if necessary
 docker rmi dockerizedsampleimage:latest
 
-# Build the youdubserver image
+# Build the  image
 echo "Building with the current source"
 docker build -t dockerizedsampleimage:latest .
 
-# Run DockerizedSample container
+# Run the container
 echo "Run container "
 
-# Run the container once.
-# then grab the IP of the HOST in the container
-# stop and relaunch with the good IP
-docker run  -d --name DockerizedSample dockerizedsampleimage
-HOST_IN_CONTAINER_IP=$(docker exec DockerizedSample /sbin/ip route|awk '/default/ { print $3 }')
-docker stop DockerizedSample
-docker rm DockerizedSample
+# Grab the Host IP
+HOST_IP=$(ifconfig en0 | grep inet | grep -v inet6 | awk '{print $2}')
 
+###############################
 # Run the debuggable container
-docker run  -e PHP_IDE_CONFIG="serverName=Dockerized"\
-            -e XDEBUG_CONFIG="remote_host=$HOST_IN_CONTAINER_IP"\
+#
+#   serverName?
+#   in PHPStorm Use the name set in : Preferences/Languages & Frameworks/PHP/Servers
+#
+#   ideKey?
+#   we do use commonly PHPSTORM but it should be consistent with your settings
+#
+###############################
+
+docker run  -e PHP_IDE_CONFIG="serverName=DockerLocal"\
+            -e XDEBUG_CONFIG="idekey=PHPSTORM"\
+            -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
             -p 27017:27017 \
-            -p 8001:80\
-            -d --name DockerizedSample dockerizedsampleimage\
+            -p 8002:80\
+            -d --name DockerizedSample dockerizedsampleimage
 
 # Start mongod
 echo "Start mongod "
 docker exec DockerizedSample service mongod start
 
-echo "IP in Docker Host"
-echo "$HOST_IN_CONTAINER_IP"
-
-echo "Local IP"
-ipconfig getifaddr en0
-
 # Open localhost in a browser on macOS
 if [[ "$OSTYPE" =~ ^darwin ]];
-    then open http://localhost:8001/
+    then open http://localhost:8002/
 fi;
+
+cd "$CURRENT_DIR"

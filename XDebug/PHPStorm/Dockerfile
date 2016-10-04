@@ -10,11 +10,13 @@ COPY /html /var/www/html/
 #Erase the current Configuration of xdebug
 RUN     echo "" > /usr/local/etc/php/conf.d/xdebug.ini
 
-#Configure XDEBUG
-RUN     HOST_IN_CONTAINER_IP=$(/sbin/ip route|awk '/default/ { print $3 }')\
-        &&echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini \
-        && echo "xdebug.remote_host=$HOST_IN_CONTAINER_IP" >> /usr/local/etc/php/conf.d/xdebug.ini \
-        && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/xdebug.ini \
+# Configure XDEBUG
+# To start a Docker container with full XDEBUG support
+# you must define the remote_host, serverName, and idekey
+# Check run.sh for details.
+# Check -> http://manual.pohape.ru/xdebug/
+
+RUN     echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/xdebug.ini \
         && echo "xdebug.remote_mode=req" >> /usr/local/etc/php/conf.d/xdebug.ini \
         && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
         && echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/xdebug.ini\
