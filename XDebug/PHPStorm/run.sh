@@ -48,6 +48,10 @@ case $key in
     -o|--options-file)
     OPTIONS_FILE="$2"
     ;;
+     -u|--pullImage)
+    PULL_IMAGE="YES"
+    shift
+    ;;
     *)
     #
     ;;
@@ -99,7 +103,7 @@ docker stop $CONTAINER_NAME
 echo "Removing the container"
 docker rm $CONTAINER_NAME
 
-if [[ "$INSTALL" =~ ^YES ]];
+if [[ "$PULL_IMAGE" =~ ^YES ]];
   then
     echo "Pulling bartlebys/php-apache-mongo"
     # Let's pull the base Image
