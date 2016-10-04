@@ -2,5 +2,5 @@
 
 CURRENT_DIR=$(PWD)
 cd "$(dirname "$0")"
-./run.sh install --image serverimage --container SampleContainer
+./run.sh install
 cd "$CURRENT_DIR"
