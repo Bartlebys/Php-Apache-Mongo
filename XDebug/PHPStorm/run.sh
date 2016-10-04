@@ -2,22 +2,24 @@
 #
 # Usage
 #
+# If you call ./run.sh it will use the default.conf values.
+#
 # To proceed to install
-#   ./run.sh install --image serverImage --container SampleContainer
+#   ./run.sh install --image serverimage --container SampleContainer
 #
 # To delete the image
-#   ./run.sh -d --image serverImage --container SampleContainer
+#   ./run.sh -d --image serverimage --container SampleContainer
 #
 # To preserve the image
-#   ./run.sh -p --image serverImage --container SampleContainer
+#   ./run.sh -p --image serverimage --container SampleContainer
 
-# Default values
-CONTAINER_NAME=SampleContainer
-IMAGE_NAME=serverImage
-DESTROY_IMAGE=YES # YES or NO
-XDEBUG=NO # YES or NO
-INSTALL=NO # YES or NO
-APACHE_PORT=8002
+
+CURRENT_DIR=$(PWD)
+cd "$(dirname "$0")"
+source ./default.conf
+
+# Sever name must be in lower cases
+IMAGE_NAME = | awk '{print tolower($IMAGE_NAME)}'
 
 # Arguments parsing
 while [[ $# -gt 1 ]]
@@ -53,26 +55,20 @@ esac
 shift
 done
 
-
-CURRENT_DIR=$(PWD)
-cd "$(dirname "$0")"
-
-
 if [[ "$INSTALL" =~ ^YES ]];
     then
-        echo "Pulling bartlebys/php-apache-mongo"
+        # Force To destroy Image
         DESTROY_IMAGE="YES"
         XDEBUG="YES"
-        # Let's pull the base Image
-        docker pull bartlebys/php-apache-mongo
 fi;
 
 echo "";
-echo CONTAINER_NAME: ${CONTAINER_NAME}
-echo IMAGE_NAME: ${IMAGE_NAME}
-echo DESTROY_IMAGE: ${DESTROY_IMAGE}
-echo XDEBUG: ${XDEBUG}
-
+echo INSTALL: $INSTALL
+echo CONTAINER_NAME: $CONTAINER_NAME
+echo IMAGE_NAME: $IMAGE_NAME
+echo DESTROY_IMAGE: $DESTROY_IMAGE
+echo XDEBUG: $XDEBUG
+echo APACHE_PORT: $APACHE_PORT
 
 # Stop the container
 echo "Stopping the container $CONTAINER_NAME"
@@ -82,39 +78,52 @@ docker stop $CONTAINER_NAME
 echo "Removing the container"
 docker rm $CONTAINER_NAME
 
+if [[ "$INSTALL" =~ ^YES ]];
+  then
+    echo "Pulling bartlebys/php-apache-mongo"
+    # Let's pull the base Image
+    docker pull bartlebys/php-apache-mongo
+fi;
 
-if [[ "$DESTROY_IMAGE" =~ ^YES ]];
-
-    then
-        # Delete the image if necessary
-        docker rmi $IMAGE_NAME:latest
-
-        # Build the youdubserver image
-        echo "Building the image $IMAGE_NAME with the current sources"
-        docker build -t $IMAGE_NAME:latest .
-
+if [[ ("$INSTALL" =~ ^YES) || ("$DESTROY_IMAGE" =~ ^YES) ]];
+  then
+    # Delete the image if necessary
+    docker rmi $IMAGE_NAME:latest
+    # Build the youdubserver image
+    echo "Building the image $IMAGE_NAME with the current sources"
+    docker build -t $IMAGE_NAME:latest .
 fi;
 
 # Run YouDubApi container
 echo "Running the container $CONTAINER_NAME"
 
 if [[ "$XDEBUG" =~ ^YES ]];
+
     then
+
+        #################
+        # ENABLE XDEBUG
+        #################
+
          # Grab the Host IP
         HOST_IP=$(ifconfig en0 | grep inet | grep -v inet6 | awk '{print $2}')
 
         # Run the debuggable container
         # details available on https://github.com/Bartlebys/Php-Apache-Mongo/blob/master/README.md
 
-        docker run  -e PHP_IDE_CONFIG="serverName=DockerLocal"\
+        docker run  -e PHP_IDE_CONFIG="serverName=$SERVERNAME"\
                     -e XDEBUG_CONFIG="idekey=PHPSTORM"\
                     -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
                     -p 27017:27017 \
-                    -p APACHE_PORT:80\
+                    -p $APACHE_PORT:80\
                     -d --name $CONTAINER_NAME $IMAGE_NAME
 else
-    # No Xdebug Support
-    docker run -d  -p APACHE_PORT:80  -p 27017:27017 --name $CONTAINER_NAME $IMAGE_NAME
+
+    ###################
+    # No XDEBUG Support
+    ###################
+
+    docker run -d  -p $APACHE_PORT:80  -p 27017:27017 --name $CONTAINER_NAME $IMAGE_NAME
 fi;
 
 # Start mongod

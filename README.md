@@ -6,11 +6,11 @@ You just call one install script and you obtain a fully dockerized running PHP D
 
 Feel free to contribute and [propose improvements](https://github.com/Bartlebys/Php-Apache-Mongo/issues).
 
-## Featuring 
+## Featuring
 
-- PHP 5.6 (7.X to come soon) 
-- MongoDB 
-- Apache 
+- PHP 5.6 (7.X to come soon)
+- MongoDB
+- Apache
 - Xdebug
 
 # Includes a Fully functional PHPStorm Sample project
@@ -40,31 +40,45 @@ You will have a full PHP / APACHE / MONGODB container with XDEBUG enabled.
 
 # run.sh Usage
 
-[ run.sh Script ](XDebug/PHPStorm/run.sh)
+If you call `./run.sh` it will use the options set in `default.conf`.
+
+[run.sh Script] (XDebug/PHPStorm/run.sh)
 
 ## To proceed to install
 
 ```
-./run.sh install --image serverImage --container SampleContainer
+./install.sh
 ```
 
-## To delete the image
+
+## To delete the image rebuild and run
 
 ```
-./run.sh -d --image serverImage --container SampleContainer
+./run.sh
 ```
 
 ## To preserve the image
 
 ```
-./run.sh -p --image serverImage --container SampleContainer
+./run.sh -p
 ```
 
-# Alternative Manual Installation Sequence 
+## To Setup the container & image name
+
+use `--image` and `--container`
+
+e.g :
+
+```
+./run.sh -d --image myserverimagename --container MyServerContainerName
+```
+
+
+# Alternative Manual Installation Sequence
 
 - Pull the base image `docker pull bartlebys/php-apache-mongo`
 - Build the  image `docker build -t dockerizedsampleimage:latest .`
-- Run the container 
+- Run the container
 
 ```
 # Grab the Host IP
