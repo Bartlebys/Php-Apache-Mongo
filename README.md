@@ -38,7 +38,29 @@ You will have a full PHP / APACHE / MONGODB container with XDEBUG enabled.
 ![Config2](assets/config2.png)
 
 
-# Sequence 
+# run.sh Usage
+
+[ run.sh Script ](XDebug/PHPStorm/run.sh)
+
+## To proceed to install
+
+```
+./run.sh install --image serverImage --container SampleContainer
+```
+
+## To delete the image
+
+```
+./run.sh -d --image serverImage --container SampleContainer
+```
+
+## To preserve the image
+
+```
+./run.sh -p --image serverImage --container SampleContainer
+```
+
+# Alternative Manual Installation Sequence 
 
 - Pull the base image `docker pull bartlebys/php-apache-mongo`
 - Build the  image `docker build -t dockerizedsampleimage:latest .`
