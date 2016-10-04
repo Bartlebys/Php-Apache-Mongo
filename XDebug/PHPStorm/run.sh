@@ -71,8 +71,15 @@ if [[ "$INSTALL" =~ ^YES ]];
         XDEBUG="YES"
 fi;
 
-# Server name must be in lower cases
-IMAGE_NAME = | awk '{print tolower($IMAGE_NAME)}'
+
+# Image name must be in lower case
+if [ -z "IMAGE_NAME" ];
+    then
+        echo "IMAGE_NAME is undefined "
+    else
+       IMAGE_NAME=$(echo $IMAGE_NAME | awk '{print tolower($0);}' )
+fi;
+
 
 echo "";
 echo OPTIONS_FILE: $OPTIONS_FILE
@@ -82,6 +89,7 @@ echo IMAGE_NAME: $IMAGE_NAME
 echo DESTROY_IMAGE: $DESTROY_IMAGE
 echo XDEBUG: $XDEBUG
 echo APACHE_PORT: $APACHE_PORT
+echo MONGO_DB_PORT: $MONGO_DB_PORT
 echo POST_PROCESSING_SCRIPT: $POST_PROCESSING_SCRIPT
 
 # Stop the container
@@ -127,7 +135,7 @@ if [[ "$XDEBUG" =~ ^YES ]];
         docker run  -e PHP_IDE_CONFIG="serverName=$SERVERNAME"\
                     -e XDEBUG_CONFIG="idekey=PHPSTORM"\
                     -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
-                    -p 27017:27017 \
+                    -p $MONGO_DB_PORT:27017 \
                     -p $APACHE_PORT:80\
                     -d --name $CONTAINER_NAME $IMAGE_NAME
 else
@@ -136,7 +144,7 @@ else
     # No XDEBUG Support
     ###################
 
-    docker run -d  -p $APACHE_PORT:80  -p 27017:27017 --name $CONTAINER_NAME $IMAGE_NAME
+    docker run -d  -p $APACHE_PORT:80  -p $MONGO_DB_PORT:27017 --name $CONTAINER_NAME $IMAGE_NAME
 fi;
 
 # Start mongod
