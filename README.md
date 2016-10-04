@@ -1,14 +1,14 @@
 # Php-Apache-Mongo (with Dockerized XDebug support)
 
 This Docker image is based on the Official `php-apache` image.
+It offers a *Zero Config* fully *dockerized* development environment for macOS.
+You just call one install script and you obtain a fully dockerized running PHP Development stack.
 
-It is Bartleby's base Docker image.
+Feel free to contribute and [propose improvements](https://github.com/Bartlebys/Php-Apache-Mongo/issues).
 
-## Features
+## Featuring 
 
-It offers a *Zero Config* fully dockerized development environment for macOS.
-
-- PHP 5.6 (more to come soon)
+- PHP 5.6 (7.X to come soon) 
 - MongoDB 
 - Apache 
 - Xdebug
