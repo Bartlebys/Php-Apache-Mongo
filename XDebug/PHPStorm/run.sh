@@ -17,7 +17,7 @@ clear
 CURRENT_DIR=$(PWD)
 cd "$(dirname "$0")"
 
-source ./default.conf
+source default.conf
 
 # Arguments parsing
 while [[ $# -gt 1 ]]
@@ -64,8 +64,6 @@ if [ -z ${OPTIONS_FILE+x} ];
     source $OPTIONS_FILE;
 fi;
 
-
-
 if [[ "$INSTALL" =~ ^YES ]];
     then
         # Force To destroy Image
@@ -84,6 +82,7 @@ echo IMAGE_NAME: $IMAGE_NAME
 echo DESTROY_IMAGE: $DESTROY_IMAGE
 echo XDEBUG: $XDEBUG
 echo APACHE_PORT: $APACHE_PORT
+echo POST_PROCESSING_SCRIPT: $POST_PROCESSING_SCRIPT
 
 # Stop the container
 echo "Stopping the container $CONTAINER_NAME"
@@ -113,7 +112,6 @@ fi;
 echo "Running the container $CONTAINER_NAME"
 
 if [[ "$XDEBUG" =~ ^YES ]];
-
     then
 
         #################
@@ -144,6 +142,15 @@ fi;
 # Start mongod
 echo "Starting the mongodb daemon in the container "
 docker exec $CONTAINER_NAME service mongod start
+
+# Run the post processing script
+if [ -z ${POST_PROCESSING_SCRIPT+x} ];
+    then
+        echo ""
+    else
+        echo "Running post processing script $POST_PROCESSING_SCRIPT"
+        $POST_PROCESSING_SCRIPT
+fi;
 
 # Open localhost in a browser on macOS
 if [[ "$OSTYPE" =~ ^darwin ]];
