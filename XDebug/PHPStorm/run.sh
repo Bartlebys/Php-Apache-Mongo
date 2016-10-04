@@ -16,11 +16,10 @@
 clear
 CURRENT_DIR=$(PWD)
 cd "$(dirname "$0")"
-
 source default.conf
 
 # Arguments parsing
-while [[ $# -gt 1 ]]
+while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
