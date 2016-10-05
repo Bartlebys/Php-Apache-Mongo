@@ -1,8 +1,6 @@
 FROM bartlebys/php-apache-mongo:latest
 MAINTAINER Benoit Pereira da Silva <https://pereira-da-silva.com>
 
-COPY /html /var/www/html/
-
 ################################
 ## CONFIGURE AND ENABLE XDEBUG #
 ################################

@@ -37,50 +37,73 @@ You will have a full PHP / APACHE / MONGODB container with XDEBUG enabled.
 ![Config1](assets/config1.png)
 ![Config2](assets/config2.png)
 
-
-# run.sh Usage
-
-If you call `./run.sh` it will use the options set in `default.conf`.
-
-The more convenient way to run is should create a `configuration.conf` file and call `./run.sh -o configuration.conf`
-
 ## To proceed to install
 
 ```
 ./install.sh
 ```
 
+# Run Usage
 
-## To delete the image rebuild and run
+If you call `./run.sh` it will use the options set in `default.conf`.
 
-```
-./run.sh
-```
+## But you can run a different configuration
 
-## To preserve the image
+1. create a `configuration.conf` file
+2. call `./run.sh -o configuration.conf`
 
-```
-./run.sh -p
-```
-
-## To Setup the container & image name
-
-use `--image` and `--container`
-
-e.g :
+## Sample configuration
 
 ```
-./run.sh -d --image myserverimagename --container MyServerContainerName
+######################################################
+# This is the Run script configuration file
+# It Defines the default value when calling ./run.sh
+# You can run a specific configuration file with "-o file.conf"
+#####################################################
+
+# The name of the container That will be instantiated
+CONTAINER_NAME=SampleContainer
+
+# The name of the Docker Image That will be Created
+# Must be lower cases (if not it will be by the run script)
+IMAGE_NAME=sampledockerImage
+
+# YES or NO if set to YES the image will be rebuilt
+DESTROY_IMAGE=YES
+
+# YES or NO if set to YES "XDEBUG" will be enabled
+XDEBUG=YES
+
+# YES or NO if set to YES it will pull the image from docker's hub
+PULL_IMAGE=NO
+
+# YES or NO if set to YES it will rebuild the Image.
+INSTALL=NO
+
+# 80, 8000, ... choose the apache port on your Host. You will access this instance on http://localhost:<PORT>/
+APACHE_PORT=8002
+
+# 27017, 27018, ... choose the mongodb port on your Host.
+MONGO_DB_PORT=27018
+
+# the PHPStorm Configuration Server name
+SERVER_NAME=DockerLocal
+
+# a script that will be called when the container is up
+#POST_PROCESSING_SCRIPT=refreshSources.sh
 ```
 
 
-# Alternative Manual Installation Sequence
+# Alternative Manual Sequence
 
 - Pull the base image `docker pull bartlebys/php-apache-mongo`
 - Build the  image `docker build -t dockerizedsampleimage:latest .`
 - Run the container
 
 ```
+
+CURRENT_DIR=$(PWD)
+
 # Grab the Host IP
 HOST_IP=$(ifconfig en0 | grep inet | grep -v inet6 | awk '{print $2}')
 
@@ -89,7 +112,9 @@ docker run  -e PHP_IDE_CONFIG="serverName=DockerLocal"\
             -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
             -p 27017:27017 \
             -p 8002:80\
+            -v $CURRENT_DIR:/var/www/\
             -d --name DockerizedSample dockerizedsampleimage
+            
 ```
 
 

@@ -2,5 +2,5 @@
 
 CURRENT_DIR=$(PWD)
 cd "$(dirname "$0")"
-./run.sh install
+./run.sh -o install.conf
 cd "$CURRENT_DIR"

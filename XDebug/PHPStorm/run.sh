@@ -2,78 +2,45 @@
 #
 # Usage
 #
-# If you call ./run.sh it will use the default.conf values.
+# Run with default values:
+#  ./run.sh it will use the default.conf
+#
+# Run with a specific configuration :
+#   ./run.sh -o configuration.conf
 #
 # To proceed to install
-#   ./run.sh install --image serverimage --container SampleContainer
-#
-# To delete the image
-#   ./run.sh -d --image serverimage --container SampleContainer
-#
-# To preserve the image
-#   ./run.sh -p --image serverimage --container SampleContainer
+#   ./run.sh -o ./install.conf
 
 clear
 CURRENT_DIR=$(PWD)
 cd "$(dirname "$0")"
+echo "Changing directory to $(dirname "$0")"
+echo "Loading default configuration"
 source default.conf
 
 # Arguments parsing
 while [[ $# -gt 0 ]]
 do
-key="$1"
-case $key in
-    install|installation)
-    INSTALL="YES"
-    shift
-    ;;
-    -d|--destroy)
-    DESTROY_IMAGE="YES"
-    shift
-    ;;
-    -p|--preserve)
-    DESTROY_IMAGE="NO"
-    shift
-    ;;
-    -x|--xdebug)
-    XDEBUG="YES"
-    shift
-    ;;
-    -c|--container)
-    CONTAINER_NAME="$2"
-    ;;
-    -i|--image)
-    IMAGE_NAME="$2"
-    ;;
-    -o|--options-file)
-    OPTIONS_FILE="$2"
-    ;;
-     -u|--pullImage)
-    PULL_IMAGE="YES"
-    shift
-    ;;
-    *)
-    #
-    ;;
-esac
-shift
+  key="$1"
+  case $key in
+      -o|--options-file)
+      OPTIONS_FILE="$2"
+      ;;
+      *)
+      #
+      ;;
+  esac
+  shift
 done
 
+# Import the options file?
 if [ -z ${OPTIONS_FILE+x} ];
     then
-    echo "No options file"
+    echo "Command line arguments are overriden by a configuration file."
     else
     echo "Using options file $OPTIONS_FILE"
     source $OPTIONS_FILE;
 fi;
-
-if [[ "$INSTALL" =~ ^YES ]];
-    then
-        # Force To destroy Image
-        DESTROY_IMAGE="YES"
-        XDEBUG="YES"
-fi;
-
 
 # Image name must be in lower case
 if [ -z "IMAGE_NAME" ];
@@ -86,6 +53,7 @@ fi;
 
 echo "";
 echo OPTIONS_FILE: $OPTIONS_FILE
+echo PULL_IMAGE: $PULL_IMAGE
 echo INSTALL: $INSTALL
 echo CONTAINER_NAME: $CONTAINER_NAME
 echo IMAGE_NAME: $IMAGE_NAME
@@ -140,14 +108,19 @@ if [[ "$XDEBUG" =~ ^YES ]];
                     -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
                     -p $MONGO_DB_PORT:27017 \
                     -p $APACHE_PORT:80\
+                    -v $CURRENT_DIR:/var/www/\
                     -d --name $CONTAINER_NAME $IMAGE_NAME
+
 else
 
     ###################
     # No XDEBUG Support
     ###################
 
-    docker run -d  -p $APACHE_PORT:80  -p $MONGO_DB_PORT:27017 --name $CONTAINER_NAME $IMAGE_NAME
+    docker run  -p $APACHE_PORT:80\
+                -p $MONGO_DB_PORT:27017\
+                -v $CURRENT_DIR:/var/www/\
+                -d --name $CONTAINER_NAME $IMAGE_NAME
 fi;
 
 # Start mongod
@@ -157,7 +130,7 @@ docker exec $CONTAINER_NAME service mongod start
 # Run the post processing script
 if [ -z ${POST_PROCESSING_SCRIPT+x} ];
     then
-        echo ""
+        echo "There is no post processing script to run"
     else
         echo "Running post processing script $POST_PROCESSING_SCRIPT"
         $POST_PROCESSING_SCRIPT
