@@ -9,7 +9,7 @@ MAINTAINER Benoit Pereira da Silva <https://pereira-da-silva.com>
 # https://docs.mongodb.com/manual/tutorial/install-mongodb-on-debian/
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+RUN echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
 RUN apt-get update
 RUN apt-get install -y mongodb-org
 
