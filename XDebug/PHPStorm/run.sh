@@ -12,9 +12,9 @@
 #   ./run.sh -o ./install.conf
 
 clear
-CURRENT_DIR=$(PWD)
+PREVIOUS_DIR=$(pwd)
 cd "$(dirname "$0")"
-echo "Changing directory to $(dirname "$0")"
+
 echo "Loading default configuration"
 source default.conf
 
@@ -41,6 +41,12 @@ if [ -z ${OPTIONS_FILE+x} ];
     echo "Using options file $OPTIONS_FILE"
     source $OPTIONS_FILE;
 fi;
+
+
+cd ../../
+BASE_DIR=$(pwd)
+echo "Changing directory to $BASE_DIR"
+
 
 # Image name must be in lower case
 if [ -z "IMAGE_NAME" ];
@@ -85,6 +91,10 @@ if [[ ("$INSTALL" =~ ^YES) || ("$DESTROY_IMAGE" =~ ^YES) ]];
     # Build the youdubserver image
     echo "Building the image $IMAGE_NAME with the current sources"
     docker build -t $IMAGE_NAME:latest .
+
+    #Create if necesary the mongo folders
+    mkdir $BASE_DIR/Mongo/db
+    mkdir $BASE_DIR/Mongo/configdb
 fi;
 
 # Run YouDubApi container
@@ -108,7 +118,9 @@ if [[ "$XDEBUG" =~ ^YES ]];
                     -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
                     -p $MONGO_DB_PORT:27017 \
                     -p $APACHE_PORT:80\
-                    -v $CURRENT_DIR:/var/www/\
+                    -v $BASE_DIR:/var/www\
+                    -v $BASE_DIR/Mongo/db:/data/db\
+                    -v $BASE_DIR/Mongo/configdb:/data/configdb\
                     -d --name $CONTAINER_NAME $IMAGE_NAME
 
 else
@@ -119,13 +131,18 @@ else
 
     docker run  -p $APACHE_PORT:80\
                 -p $MONGO_DB_PORT:27017\
-                -v $CURRENT_DIR:/var/www/\
+                -v $BASE_DIR:/var/www\
+                -v $BASE_DIR/Mongo/db:/data/db\
+                -v $BASE_DIR/Mongo/configdb:/data/configdb\
                 -d --name $CONTAINER_NAME $IMAGE_NAME
 fi;
 
 # Start mongod
 echo "Starting the mongodb daemon in the container "
-docker exec $CONTAINER_NAME service mongod start
+# Since a january 2017 mongod fails to be launched via:
+# `docker exec $CONTAINER_NAME service mongod start`
+# So we launch the service via exec in a background task.
+docker exec -d $CONTAINER_NAME mongod
 
 # Run the post processing script
 if [ -z ${POST_PROCESSING_SCRIPT+x} ];
@@ -138,7 +155,7 @@ fi;
 
 # Open localhost in a browser on macOS
 if [[ "$OSTYPE" =~ ^darwin ]];
-    then open http://localhost:$APACHE_PORT/
+    then open http://yd.local:$APACHE_PORT/
 fi;
 
-cd "$CURRENT_DIR"
+cd "$PREVIOUS_DIR"
