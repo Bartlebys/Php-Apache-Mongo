@@ -107,12 +107,17 @@ CURRENT_DIR=$(PWD)
 # Grab the Host IP
 HOST_IP=$(ifconfig en0 | grep inet | grep -v inet6 | awk '{print $2}')
 
+mkdir $CURRENT_DIR/Mongo/db
+mkdir $CURRENT_DIR/Mongo/configdb
+
 docker run  -e PHP_IDE_CONFIG="serverName=DockerLocal"\
             -e XDEBUG_CONFIG="idekey=PHPSTORM"\
             -e XDEBUG_CONFIG="remote_host=$HOST_IP"\
             -p 27017:27017 \
             -p 8002:80\
             -v $CURRENT_DIR:/var/www/\
+            -v $CURRENT_DIR/Mongo/db:/data/db\
+            -v $CURRENT_DIR/Mongo/configdb:/data/configdb\
             -d --name DockerizedSample dockerizedsampleimage
             
 ```
